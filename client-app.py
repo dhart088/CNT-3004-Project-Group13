@@ -41,9 +41,6 @@ def main():
         elif cmd == "LOGOUT":
             client.send(cmd.encode(FORMAT))
             break
-        
-        else:
-            print("Invalid command, please try again.")
 
     # Close the connection when loop broken
     print("Disconnected from server.")
