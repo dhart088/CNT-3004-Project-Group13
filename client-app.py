@@ -44,7 +44,6 @@ def main():
         
         else:
             print("Invalid command, please try again.")
-            continue
 
     # Close the connection when loop broken
     print("Disconnected from server.")
