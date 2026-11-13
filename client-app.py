@@ -33,10 +33,6 @@ def main():
 
         if cmd == "TASK":
             client.send(cmd.encode(FORMAT))
-            
-        elif cmd == "HELP":
-            # Should this be handled client-side or server-side?
-            continue
 
         elif cmd == "LOGOUT":
             client.send(cmd.encode(FORMAT))
