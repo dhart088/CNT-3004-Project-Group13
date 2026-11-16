@@ -2,18 +2,19 @@ import os
 import socket
 import threading
 
+from PIL.Jpeg2KImagePlugin import Jpeg2KImageFile
+
 IP = "localhost"
 PORT = 4450
 ADDR = (IP,PORT)
 SIZE = 1024
 FORMAT = "utf-8"
 SERVER_PATH = "server"
+KEEP_ALIVE = True
 
 #
 import struct
-
-# 4096 is test, 1024 is default autofill
-# BUFFER_SIZE = 1024
+from pathlib import Path
 
 ### to handle the clients
 def handle_client (conn,addr):
@@ -21,8 +22,11 @@ def handle_client (conn,addr):
     print(f"[NEW CONNECTION] {addr} connected.")
     conn.send("OK@Welcome to the server".encode(FORMAT))
 
-
-
+    # Directory setup ==================================================================================================
+    # base path or default folder, shouldn't go any higher than this only lower into subfolders
+    base = Path.cwd() / "ServerResources"
+    cur_dir = base
+    # Directory setup ==================================================================================================
 
     while True:
         # get client messages
@@ -35,12 +39,23 @@ def handle_client (conn,addr):
         # client initiated logout
         if cmd == "LOGOUT":
             break
-
-#  ====================================================================================================================
-        # Client initialed a file upload
+        elif cmd == "QUIT":
+            global KEEP_ALIVE
+            KEEP_ALIVE = False
+            break
+        # Client initialed a file upload ===============================================================================
         elif cmd == "UPLOADFILE":
             #currently just downloads the file into the received_file bin.
-            #will soon make it create/update client defined files with names
+
+            #now that directories are "Functioning" (barebones), client can now navigate to the directory and give the file name when calling "UPLOAD FILE"
+
+            #if upload file, now extract filename and type
+            # cmd = data[0]
+            # file_name_to_upload = data[1]
+            # ex: UPLOADFILE@quizanswers.txt
+
+            #once ready ill update to new file with name update instead of just recieved_file.bin
+
 
 
             # Read the 8-Byte file size header
@@ -68,7 +83,47 @@ def handle_client (conn,addr):
                     received_size += len(chunk)
 
             print("File transfer complete")
-#  ====================================================================================================================
+        #  =============================================================================================================
+        elif cmd == "DIR":
+
+            # TO USE THIS THE CLIENT CURRENTLY NEEDS TO "SEND" THE MESSAGE IN FORMAT:
+            #> "DIR@DOWN@Text"
+            #> "DIR@UP@NONE"
+            #> "DIR@LIST@NONE"
+            # NONE is just a placeholder NEEDED until input checks are in place so 3 inputs are currently required, for commands that want 2
+            # the sever then splits and does what it needs to
+            # The client can type the message with " " spaces or anything BUT MUST SEND it in this format with @ between command words to the server
+
+            if data[1] == "DOWN":
+                # how to Navigate DOWN using the / operator
+                # destination_dir = base / "Video" / "Text"
+                # puts you in the "Text" subfolder following the path of /
+
+                # OR
+
+                # using a dictionary of subfolder paths as the key pair is an easy way to navigate [***]
+                # subfolders = ["Video", "Text"]
+                # destination_dir = base.joinpath(*subfolders)
+                # put you in subfolders in the order of the array, ending in "Text"
+
+                # DIR@DOWN@Text
+                cur_dir = cur_dir / data[2]
+
+            elif data[1] == "UP":
+                print("UP command")
+                # Up doesn't need additional info from client, just get the parent dir
+                # Navigate UP using .parent
+
+                # check before it gets higher than base/ServerResources
+                cur_dir = cur_dir.parent
+
+            elif data[1] == "LIST":
+                # List immediate files and folders [***]
+                for item in cur_dir.iterdir():
+                    if item.is_dir():
+                        print(f"Folder: {item.name}")
+                    elif item.is_file():
+                        print(f"File: {item.name}")
 
 
     # final statement before client thread dies
@@ -82,7 +137,8 @@ def main():
     server.bind(ADDR) # bind the address
     server.listen() ## start listening
     print(f"server is listening on {IP}: {PORT}")
-    while True:
+    global KEEP_ALIVE
+    while KEEP_ALIVE:
         conn, addr = server.accept() ### accept a connection from a client
         thread = threading.Thread(target = handle_client, args = (conn, addr)) ## assigning a thread for each client
         thread.start()

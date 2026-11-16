@@ -15,6 +15,7 @@ FILENAME2 = "sample_text.txt"
 
 import os
 import struct
+import time
 
 
 def main():
@@ -44,9 +45,32 @@ def main():
             client.send(cmd.encode(FORMAT))
             break
 
+        #  QUIT IS JUST FOR TESTING, FOR NOW IT CLEANLY SHUTS THE SERVER DOWN !!!! [***]
+        elif cmd == "QUIT":
+            #send logout
+            client.send("QUIT".encode(FORMAT))
+            client.close()
+
+            # 0.5 second delay before reconnect
+            time.sleep(0.5)
+
+            # reconnect to server
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client.connect(ADDR)
+
+            # get welcome message
+            data = client.recv(SIZE).decode(FORMAT)
+            #logout again
+            client.send("LOGOUT".encode(FORMAT))
+            break
+
+
         elif cmd == "UPLOADFILE":
             # send the UPLOADFILE command to server
             client.send("UPLOADFILE".encode(FORMAT))
+
+            #now send the file name and type
+            #
 
             # prepare and send the byte header for placeholder file FILENAME2
             size_in_bytes = os.path.getsize(FILENAME2)
@@ -56,6 +80,15 @@ def main():
                 client.sendfile(f)
 
             print("File sent successfully.")
+        elif cmd == "DIR":
+            # THIS NEEDS UPDATED, CAN TAKE ANY LEN THAT MATCHES ONE FROM THE SERVER, 3 is just easy testing
+            if len(data) >= 3:
+                cmd_full = cmd + "@" + data[1] + "@" + data[2]
+                # Whatever changes above, THIS NEEDS TO BE FORMATED WITH @ between each input
+                client.send(cmd_full.encode(FORMAT))
+
+        else:
+            print("Command Not found: ", cmd)
 
 
     print("Disconnected from the server.")
