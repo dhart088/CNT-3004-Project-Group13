@@ -1,7 +1,6 @@
 import socket
 import os
 import struct
-import time
 from pathlib import Path
 
 IP = "localhost"
@@ -35,37 +34,24 @@ def main():
         data = data.split(" ")
         cmd = data[0]
 
+        # this was a default, nothing yet
         if cmd == "HELP":
             pass
+        # close the connection from this client to the server
         elif cmd == "LOGOUT":
             # to use:
             #> LOGOUT
             client.send(cmd.encode(FORMAT))
             break
 
-        #  QUIT IS JUST FOR TESTING, FOR NOW IT CLEANLY SHUTS THE SERVER DOWN !!!! [***]
+        # Shuts the server down and logs out
         elif cmd == "QUIT":
             # to use:
             #> QUIT
-
-            #send logout
             client.send("QUIT".encode(FORMAT))
-            client.close()
-
-            # 0.5 second delay before reconnect
-            time.sleep(0.5)
-
-            # reconnect to server
-            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            client.connect(ADDR)
-
-            # get welcome message
-            data = client.recv(SIZE).decode(FORMAT)
-            #logout again
-            client.send("LOGOUT".encode(FORMAT))
             break
 
-
+        # Uploads a file to the server in the currently viewed directory
         elif cmd == "UPLOADFILE":
             # to use:
             #> UPLOAD name_of_file_i_want_to_upload.txt
@@ -94,11 +80,16 @@ def main():
             # to use:
             #> DIR DOWN name_of_directory_i_want_to_go_down_into
             #> DIR UP NONE
-            # THIS NEEDS UPDATED, CAN TAKE ANY LEN THAT MATCHES ONE FROM THE SERVER, 3 is just easy testing
-            if len(data) >= 3:
-                cmd_full = cmd + "@" + data[1] + "@" + data[2]
-                # Whatever changes above, THIS NEEDS TO BE FORMATED WITH @ between each input
-                client.send(cmd_full.encode(FORMAT))
+
+            # This is the error check to ensure that every message is an appropriate length to send to the server
+            # 1@2@3
+            cmd_full = cmd
+            for item in data[1:]:
+                cmd_full += "@" + item
+            for idx in range(3 - len(data)):
+                cmd_full += "@NONE"
+
+            client.send(cmd_full.encode(FORMAT))
 
         else:
             # to use:
