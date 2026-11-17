@@ -1,8 +1,5 @@
-import os
 import socket
 import threading
-
-from PIL.Jpeg2KImagePlugin import Jpeg2KImageFile
 
 IP = "localhost"
 PORT = 4450
@@ -56,7 +53,7 @@ def handle_client (conn,addr):
 
             #once ready ill update to new file with name update instead of just recieved_file.bin
 
-
+            create_path = cur_dir / data[1]
 
             # Read the 8-Byte file size header
 
@@ -70,7 +67,7 @@ def handle_client (conn,addr):
 
             # get the file until the expected bytes are read
             received_size = 0
-            with open("received_file.bin", "wb") as f:
+            with open(create_path, "wb") as f:
                 while received_size < total_expected_size:
                     # cap the intake at the smaller of either the buffer size or the remaining bits to read
                     chunk_size = min(SIZE, total_expected_size - received_size)
@@ -117,13 +114,14 @@ def handle_client (conn,addr):
                 # check before it gets higher than base/ServerResources
                 cur_dir = cur_dir.parent
 
-            elif data[1] == "LIST":
-                # List immediate files and folders [***]
-                for item in cur_dir.iterdir():
-                    if item.is_dir():
-                        print(f"Folder: {item.name}")
-                    elif item.is_file():
-                        print(f"File: {item.name}")
+            #elif data[1] == "LIST":
+            # List immediate files and folders [***]
+            #if they use dir, display the new cur_dir
+            for item in cur_dir.iterdir():
+                if item.is_dir():
+                    print(f"Folder: {item.name}")
+                elif item.is_file():
+                    print(f"File: {item.name}")
 
 
     # final statement before client thread dies
