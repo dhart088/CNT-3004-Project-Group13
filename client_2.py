@@ -76,6 +76,45 @@ def main():
             else:
                 print("File not found.")
 
+        elif cmd == "DOWNLOADFILE":
+            # to use:
+            # client needs to send
+            # > "DOWNLOAD@file_name_to_download.file_type_like_txt"
+
+            # send the server the command and file to download
+            create_path = base / data[1]
+            client.send((cmd + "@" + data[1]).encode(FORMAT))
+
+            # Read the 8-Byte file size header
+
+            # b"" is an empty bytes object
+            raw_size = b""
+            # get the first 8 bytes
+            while len(raw_size) < 8:
+                raw_size += client.recv(8 - len(raw_size))
+            # unpack the first 8 bytes "raw_size" to find the total expected file size in bytes
+            total_expected_size = struct.unpack("!Q", raw_size)[0]
+
+            # server returns 0 bytes if file not found
+            if total_expected_size == 0:
+                print("File not found.")
+            else:
+                # get the file until the expected bytes are read
+                received_size = 0
+                with open(create_path, "wb") as f:
+                    while received_size < total_expected_size:
+                        # cap the intake at the smaller of either the buffer size or the remaining bits to read
+                        chunk_size = min(SIZE, total_expected_size - received_size)
+                        # print(f"chunk_size = {chunk_size}\n received_size = {received_size}\n\n")
+                        chunk = client.recv(chunk_size)
+                        if not chunk:
+                            break
+                        f.write(chunk)
+                        # update the received with each chunk
+                        received_size += len(chunk)
+
+                print("File Download complete")
+
         elif cmd == "DIR":
             # to use:
             #> DIR DOWN name_of_directory_i_want_to_go_down_into

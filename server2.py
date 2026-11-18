@@ -2,6 +2,7 @@ import socket
 import threading
 import struct
 from pathlib import Path
+import os
 
 IP = "localhost"
 PORT = 4450
@@ -46,16 +47,12 @@ def handle_client (conn,addr, serv):
 
             # Client initialed a file upload ===============================================================================
             elif cmd == "UPLOADFILE":
+                # to use:
+                # client needs to send
+                #> "UPLOADFILE@file_name_to_upload.file_type_like_txt"
                 #currently just downloads the file into the received_file bin.
 
-                #now that directories are "Functioning" (barebones), client can now navigate to the directory and give the file name when calling "UPLOAD FILE"
-
-                #if upload file, now extract filename and type
-                # cmd = data[0]
-                # file_name_to_upload = data[1]
-                # ex: UPLOADFILE@quizanswers.txt
-
-                #once ready ill update to new file with name update instead of just recieved_file.bin
+                #now that directories are "Functioning" (barebones), client can now navigate to the directory and give the file name when calling "UPLOADFILE"
 
                 create_path = cur_dir / data[1]
 
@@ -126,10 +123,34 @@ def handle_client (conn,addr, serv):
                         print(f"Folder: {item.name}")
                     elif item.is_file():
                         print(f"File: {item.name}")
+
+            elif cmd == "DOWNLOADFILE":
+
+                # # to use:
+                # # > DOWNLOAD@name_of_file_i_want_to_download.txt
+
+                chosen_filename = data[1]
+                file_path = cur_dir / chosen_filename
+                #
+                # # check if the file exists in the current directory
+                if file_path.is_file():
+
+                    # prepare and send the byte header for placeholder file FILENAME2
+                    size_in_bytes = os.path.getsize(file_path)
+                    conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
+
+                    with open(file_path, "rb") as f:
+                        conn.sendfile(f)
+
+                    print("File sent successfully.")
+                else:
+                    print("File not found.")
+                    # send back 0 bytes for file not found
+                    conn.sendall(struct.pack("!Q", 0))
+
     except OSError:
         pass
     finally:
-        # serv.close()
         pass
 
     # final statement before client thread dies
