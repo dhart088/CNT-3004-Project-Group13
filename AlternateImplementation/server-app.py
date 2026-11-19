@@ -3,6 +3,7 @@ import socket
 import threading
 from pathlib import Path
 import struct
+import analytics.py as an
 
 
 SIZE = 1024
@@ -53,7 +54,7 @@ def handle_client (conn,addr):
             # check if the file exist and can be uploaded
             filename = data[1]
             if not (cur_dir / filename).is_file():
-
+                an.startTime() # begin timer for recording transaction
                 #full path of upload file
                 # [***] cur_path
                 create_path = cur_dir / filename
@@ -78,8 +79,10 @@ def handle_client (conn,addr):
                         f.write(chunk)
                         # update the received with each chunk
                         received_size += len(chunk)
-
+                        an.updateChunk(chunk_size) # update chunk size for recording transaction
+                        
                 # print("File transfer complete")
+                an.calculate(SERVER_PATH, "up") # calculate and record successful transaction
                 conn.send(f"OK@{filename} uploaded successfully. ".encode(FORMAT))
             else:
                 send_data = f"ERROR@{filename} already exists."
@@ -89,12 +92,14 @@ def handle_client (conn,addr):
         elif cmd == "DOWNLOAD":
             filename = data[1]
             if (cur_dir / filename).is_file():
-
+                an.startTime() # begin timer for recording transaction
+                
                 size_in_bytes = os.path.getsize(cur_dir / filename)
                 conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
 
                 with open(cur_dir / filename, "rb") as f:
                     conn.sendfile(f)
+                an.calculate(SERVER_PATH, "down") # calculate and record successful transaction
                 send_data += f"{filename} downloaded successfully."
 
             else:
