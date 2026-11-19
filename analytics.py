@@ -6,6 +6,7 @@ endDate = time.ctime()
 chunkNum = 0
 chunkSize = 0
 totalFileSize = 0
+responseTime = 0
 
 transmissionRecord = [{
   "source": "server",
@@ -26,6 +27,14 @@ def startTime():
   global startDate
   startDate = time.ctime()
   return
+
+def responseTime():
+  global responseTime
+  responseTime = time.time()
+  return
+
+def getResponseTime()
+return global responseTime
 
 def getStart():
   return global startTime
@@ -52,9 +61,9 @@ def calculate(location, up_or_down):
   rate = totalFileSize / elapsedTime
   
   if up_or_down == "down":
-    transmissionRecord.append({"source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "download rate": f"{rate} bytes per second", "response time": "TODO", "ID": transactionID})
+    transmissionRecord.append({"source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "download rate": f"{rate} bytes per second", "response time": (getResponseTime() - getStart()), "ID": transactionID})
   elif up_or_down == "up":
-    transmissionRecord.append({"source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "upload rate": f"{rate} bytes per second", "response time": "TODO", "ID": transactionID})
+    transmissionRecord.append({"source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "upload rate": f"{rate} bytes per second", "response time": (getResponseTime() - getStart()), "ID": transactionID})
   
   global chunkSize
   chunkSize = 0
