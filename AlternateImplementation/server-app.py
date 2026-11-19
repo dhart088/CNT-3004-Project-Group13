@@ -68,6 +68,7 @@ def handle_client (conn,addr):
                 total_expected_size = struct.unpack("!Q", raw_size)[0]
 
                 # get the file until the expected bytes are read
+                an.responseTime() # record response time for recording transaction
                 received_size = 0
                 with open(create_path, "wb") as f:
                     while received_size < total_expected_size:
@@ -99,6 +100,7 @@ def handle_client (conn,addr):
                 an.updateChunk(size_in_bytes) # updates expected file size for recording transaction
                 
                 with open(cur_dir / filename, "rb") as f:
+                    an.responseTime() # record response time for recording transaction
                     conn.sendfile(f)
                 an.calculate(SERVER_PATH, "down") # calculate and record successful transaction
                 send_data += f"{filename} downloaded successfully."
