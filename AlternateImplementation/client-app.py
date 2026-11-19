@@ -11,10 +11,8 @@ SERVER_DATA_PATH = "server_data"
 
 def main():
     # User configurable connection
-    # IP = input("Server IP: ")
-    # PORT = int(input("Server Port: "))
-    IP = "localhost"
-    PORT = 4450
+    IP = input("Server IP: ")
+    PORT = int(input("Server Port: "))
 
     ADDR = (IP,PORT)
     basePath = Path.cwd() / "ClientResources"
@@ -52,6 +50,7 @@ def main():
             print(f"[DISCONNECT] {msg}")
             break
         elif cmd == "PASS":
+            #DO NOT REMOVE
             pass
         
         # Console input
@@ -60,6 +59,12 @@ def main():
         data = data.split(" ")
         cmd = data[0].upper()
         send_data += cmd
+
+        # # input checking
+        #
+        # cmd_full = ["@NONE", "@NONE", "@NONE"]
+        # for idx, item in enumerate(data):
+        #         cmd_full[idx] = "@" + item
 
         # Upload command
         if cmd == "UPLOAD":
@@ -89,7 +94,7 @@ def main():
             try:
                 filename = data[1]
                 if (basePath / filename).is_file():
-                    send_data = "ERROR@File {filename} already exists."
+                    send_data = f"ERROR@File {filename} already exists."
                     client.send(send_data.encode(FORMAT))
                 else:
                     # send server download command
@@ -130,7 +135,6 @@ def main():
         elif cmd == "DELETE":
             try:
                 filename = data[1]
-                print(f"Filename: {filename}")
                 send_data += f"@{filename}"
                 client.send(send_data.encode(FORMAT))
             except IndexError:
@@ -139,29 +143,42 @@ def main():
 
         # Directory command
         elif cmd == "DIR":
+
+            try:
+                send_data += "@" + data[1]
+            except IndexError:
+                send_data = "DIR@NONE"
+
             client.send(send_data.encode(FORMAT))
+
+            dir_items = client.recv(SIZE).decode(FORMAT)
+            dir_items = dir_items.split("@")
+
+            for item in dir_items:
+                print(item)
 
         # Subfolder commands
         elif cmd == "SUBFOLDER":
             try:
-                action = data[1].upper()
-                if action == "CREATE" or action == "DELETE":
+                if data[1] == "CREATE" or data[1] == "DELETE":
                     try:
-                        dirname = data[2]
-                        send_data += f"@{action}"
-                        send_data += f"@{dirname}"
-                        print(f"Action: {action}")
-                        print(f"Directory: {dirname}")
+                        send_data += f"@{data[1].upper()}"
+                        send_data += f"@{data[2]}"
                         client.send(send_data.encode(FORMAT))
                     except IndexError:
                         send_data = "ERROR@No directory name was included."
                         client.send(send_data.encode(FORMAT))
                 else:
-                    send_data = f"ERROR@Invalid subfolder action {action}."
+                    send_data = f"ERROR@Invalid subfolder action {data[1]}."
                     client.send(send_data.encode(FORMAT))
             except IndexError:
                 send_data = "ERROR@No action was included."
                 client.send(send_data.encode(FORMAT))
+
+
+        elif cmd == "DELETE":
+            send_data = "DELETE@" + data[1]
+            client.send(send_data.encode(FORMAT))
         
         # Logout command
         elif cmd == "LOGOUT":

@@ -13,6 +13,7 @@ SERVER_PATH = "server"
 def handle_client (conn,addr):
     basePath = Path.cwd() / "ServerResources"
     passPath = Path.cwd() / "AccountInfo"
+    cur_dir = basePath
 
     print(f"[NEW CONNECTION] {addr} connected.")
     conn.send("OK@Welcome to the server!".encode(FORMAT))
@@ -42,18 +43,20 @@ def handle_client (conn,addr):
             else:
                 conn.send("ERROR@Invalid username.".encode(FORMAT))
 
+
         elif cmd == "LOGOUT":
             break
-        
+
+
         elif cmd == "UPLOAD":
 
             # check if the file exist and can be uploaded
             filename = data[1]
-            if not (basePath / filename).is_file():
+            if not (cur_dir / filename).is_file():
 
                 #full path of upload file
                 # [***] cur_path
-                create_path = basePath / filename
+                create_path = cur_dir / filename
 
                 # b"" is an empty bytes object
                 raw_size = b""
@@ -83,15 +86,14 @@ def handle_client (conn,addr):
                 conn.send(send_data.encode(FORMAT))
 
 
-
         elif cmd == "DOWNLOAD":
             filename = data[1]
-            if (basePath / filename).is_file():
+            if (cur_dir / filename).is_file():
 
-                size_in_bytes = os.path.getsize(basePath / filename)
+                size_in_bytes = os.path.getsize(cur_dir / filename)
                 conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
 
-                with open(basePath / filename, "rb") as f:
+                with open(cur_dir / filename, "rb") as f:
                     conn.sendfile(f)
                 send_data += f"{filename} downloaded successfully."
 
@@ -103,14 +105,74 @@ def handle_client (conn,addr):
             conn.send(send_data.encode(FORMAT))
 
 
-
         elif cmd == "ERROR":
-            # Why does the client need to send error to server, for server to send back the same error message?
-            # conn.send("PASS@CONTINUE".encode(FORMAT))
-
             send_data = f"ERROR@{data[1]}"
             conn.send(send_data.encode(FORMAT))
 
+
+        elif cmd == "SUBFOLDER":
+
+            if data[1] == "CREATE":
+                if not (cur_dir / data[2]).is_dir():
+                    Path(cur_dir / data[2]).mkdir()
+                    conn.send(f"OK@{data[2]} created successfully.".encode(FORMAT))
+                else:
+                    conn.send(f"ERROR@{data[2]} already exists.".encode(FORMAT))
+            elif data[1] == "DELETE":
+                try:
+                    if (cur_dir / data[2]).is_dir():
+                        Path(cur_dir / data[2]).rmdir()
+                        conn.send(f"OK@{data[2]} deleted successfully.".encode(FORMAT))
+                    else:
+                        conn.send(f"ERROR@{data[2]} does not exist.".encode(FORMAT))
+                except OSError:
+                    conn.send(f"ERROR@{data[2]} is not empty.".encode(FORMAT))
+
+
+        elif cmd == "DELETE":
+            if (cur_dir / data[1]).is_file():
+                (cur_dir / data[1]).unlink(missing_ok=True)
+                conn.send(f"OK@{data[1]} deleted successfully.".encode(FORMAT))
+            else:
+                conn.send(f"ERROR@{data[1]} does not exist.".encode(FORMAT))
+
+
+        elif cmd == "DIR":
+
+            # TO USE THIS THE CLIENT CURRENTLY NEEDS TO "SEND" THE MESSAGE IN FORMAT:
+            # > "DIR@Text
+            # > "DIR@UP"
+            # > "DIR"
+            send_data = "PASS@NONE"
+            if data[1] == "UP":
+                if cur_dir != basePath:
+                    cur_dir = cur_dir.parent
+                    # send_data = f"OK@current directory is now {cur_dir.name}."
+                else:
+                    send_data = f"ERROR@already at highest directory"
+            elif data[1] != "NONE":
+
+                # DIR@Text
+                if (cur_dir / data[1]).is_dir():
+                    cur_dir = cur_dir / data[1]
+                    send_data = f"OK@current directory is now {data[1]}"
+                else:
+                    send_data = f"ERROR@{data[1]} does not exist."
+
+            send_dir = "\nFolders:"
+            send_item = "@Files:"
+            for item in cur_dir.iterdir():
+                if item.is_dir():
+                    send_dir += f"@Folder: {item.name}"
+                elif item.is_file():
+                    send_item += f"@File: {item.name}"
+            send_dir += send_item
+
+            # send dir list
+            conn.send(send_dir.encode(FORMAT))
+
+            #then status message
+            conn.send(send_data.encode(FORMAT))
 
         # Generic error
         else:
@@ -123,10 +185,9 @@ def handle_client (conn,addr):
 
 
 def main():
-    # IP = input("Enter an IP to listen on: ")
-    # PORT = int(input("Enter a port to listen on: "))
-    IP = "localhost"
-    PORT = 4450
+    IP = input("Enter an IP to listen on: ")
+    PORT = int(input("Enter a port to listen on: "))
+
     ADDR = (IP,PORT)
     print("Starting the server...")
     server = socket.socket(socket.AF_INET,socket.SOCK_STREAM) ## used IPV4 and TCP connection
