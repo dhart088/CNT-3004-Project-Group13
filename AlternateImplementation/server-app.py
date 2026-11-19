@@ -3,7 +3,7 @@ import socket
 import threading
 from pathlib import Path
 import struct
-import analytics.py as an
+import analytics as an
 
 
 SIZE = 1024
