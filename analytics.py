@@ -28,10 +28,10 @@ def startTime():
   return
 
 def getStart():
-  return startTime
+  return global startTime
 
 def getStartDate():
-  return startDate
+  return global startDate
 
 def updateChunk(chunk):
   global chunkSize
@@ -44,9 +44,10 @@ def updateChunk(chunk):
 
 def calculate(location, up_or_down):
   elapsedTime = time.time() - getStart()
+  global endDate
   endDate = time.ctime()
   global transactionID
-  transactionID++
+  transactionID = transactionID + 1
   global totalFileSize
   rate = totalFileSize / elapsedTime
   
