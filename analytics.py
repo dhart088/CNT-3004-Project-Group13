@@ -47,18 +47,18 @@ def calculate(location, up_or_down):
   endDate = time.ctime()
   global transactionID
   transactionID++
+  global totalFileSize
   rate = totalFileSize / elapsedTime
   
   if up_or_down == "down":
-    transmissionRecord.append("source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "download rate": rate, "response time": TODO, "ID": transactionID)
+    transmissionRecord.append("source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "download rate": f"{rate} bytes per second", "response time": "TODO", "ID": transactionID)
   elif up_or_down == "up":
-    transmissionRecord.append("source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "upload rate": f"{rate} bytes per second", "response time": TODO, "ID": transactionID)
+    transmissionRecord.append("source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "upload rate": f"{rate} bytes per second", "response time": "TODO", "ID": transactionID)
   
   global chunkSize
   chunkSize = 0
   global chunkNum
   chunkNum = 0
-  global totalFileSize
   totalFileSize = 0
   global startTime
   startTime = 0
