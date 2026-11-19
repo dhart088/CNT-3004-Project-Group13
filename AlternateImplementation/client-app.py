@@ -83,6 +83,7 @@ def main():
                     
                     # open and send the file
                     with open(basePath / filename, "rb") as f:
+                        an.responseTime() # record response time for recording transaction
                         client.sendfile(f)
                     an.calculate("client", "up") # calculate and record successful transaction
                 else:
@@ -119,6 +120,7 @@ def main():
                         pass
                     else:
                         # get the file until the expected bytes are read
+                        an.responseTime() # record response time for recording transaction
                         received_size = 0
                         with open(basePath / filename, "wb") as f:
                             while received_size < total_expected_size:
