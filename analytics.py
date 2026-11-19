@@ -1,11 +1,11 @@
 import time
-global startTime = 0
-global transactionID = 0
-global startDate = time.ctime()
-global endDate = time.ctime()
-global chunkNum = 0
-global chunkSize = 0
-global totalFileSize = 0
+startTime = 0
+transactionID = 0
+startDate = time.ctime()
+endDate = time.ctime()
+chunkNum = 0
+chunkSize = 0
+totalFileSize = 0
 
 transmissionRecord = [{
   "source": "server",
@@ -21,8 +21,8 @@ transmissionRecord = [{
 }]
 
 def startTime():
-  startTime = time.time()
-  startDate = time.ctime()
+  global startTime = time.time()
+  global startDate = time.ctime()
   return
 
 def getStart():
@@ -32,9 +32,9 @@ def getStartDate():
   return startDate
 
 def updateChunk(chunk):
-  chunkSize = max(chunk, chunkSize)
-  totalFileSize += chunk
-  chunkNum++
+  global chunkSize = max(chunk, chunkSize)
+  global totalFileSize += chunk
+  global chunkNum++
   return
 
 # def getChunkSize():
@@ -46,7 +46,7 @@ def updateChunk(chunk):
 def calculate(location, up_or_down):
   elapsedTime = time.time() - getStart()
   endDate = time.ctime()
-  transactionID++
+  global transactionID++
   rate = totalFileSize / elapsedTime
   
   if up_or_down == "down":
@@ -54,7 +54,7 @@ def calculate(location, up_or_down):
   elif up_or_down == "up":
     transmissionRecord.append("source": location, "start time": getStart(), "end time": end, "start date": getStartDate(), "end date": endDate, "transmission time": elapsedTime, "upload rate": f"{rate} bytes per second", "response time": TODO, "ID": transactionID)
   
-  chunkSize = 0
-  chunkNum = 0
-  totalFileSize = 0
-  startTime = 0
+  global chunkSize = 0
+  global chunkNum = 0
+  global totalFileSize = 0
+  global startTime = 0
