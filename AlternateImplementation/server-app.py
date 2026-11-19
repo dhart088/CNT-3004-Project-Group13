@@ -96,7 +96,8 @@ def handle_client (conn,addr):
                 
                 size_in_bytes = os.path.getsize(cur_dir / filename)
                 conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
-
+                an.updateChunk(size_in_bytes) # updates expected file size for recording transaction
+                
                 with open(cur_dir / filename, "rb") as f:
                     conn.sendfile(f)
                 an.calculate(SERVER_PATH, "down") # calculate and record successful transaction
