@@ -79,6 +79,7 @@ def main():
                     #now send the file size
                     size_in_bytes = os.path.getsize(basePath / filename)
                     client.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
+                    an.updateChunk(size_in_bytes) # updates the expected file size for recording the transaction
                     
                     # open and send the file
                     with open(basePath / filename, "rb") as f:
