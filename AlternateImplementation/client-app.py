@@ -4,6 +4,7 @@ import struct
 from pathlib import Path
 from getpass import getpass
 import hashlib
+import analyitics.py as an
 
 SIZE = 1024
 FORMAT = "utf-8"
@@ -71,17 +72,18 @@ def main():
             try:
                 filename = data[1]
                 if (basePath / filename).is_file():
+                    an.startTime() # start timer for recording transaction
                     send_data += f"@{filename}"
                     client.send(send_data.encode(FORMAT))
 
                     #now send the file size
                     size_in_bytes = os.path.getsize(basePath / filename)
                     client.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
-
+                    
                     # open and send the file
                     with open(basePath / filename, "rb") as f:
                         client.sendfile(f)
-
+                    an.calculate("client", "up") # calculate and record successful transaction
                 else:
                     send_data = f"ERROR@File {filename} does not exist."
                     client.send(send_data.encode(FORMAT))
@@ -97,6 +99,7 @@ def main():
                     send_data = f"ERROR@File {filename} already exists."
                     client.send(send_data.encode(FORMAT))
                 else:
+                    an.startTime() # start timer for recording transaction
                     # send server download command
                     send_data += f"@{filename}"
                     client.send(send_data.encode(FORMAT))
@@ -126,7 +129,8 @@ def main():
                                 f.write(chunk)
                                 # update the received with each chunk
                                 received_size += len(chunk)
-
+                                an.updateChunk(chunk_size) # update file size for recording transaction
+                    an.calculate("client", "down") # calculate and record successful transaction
             except IndexError:
                 send_data = "ERROR@No file name was included."
                 client.send(send_data.encode(FORMAT))
