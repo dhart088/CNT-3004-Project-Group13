@@ -1,11 +1,11 @@
 import time
-startTime = 0
-transactionID = 0
-startDate = time.ctime()
-endDate = time.ctime()
-chunkNum = 0
-chunkSize = 0
-totalFileSize = 0
+global startTime = 0
+global transactionID = 0
+global startDate = time.ctime()
+global endDate = time.ctime()
+global chunkNum = 0
+global chunkSize = 0
+global totalFileSize = 0
 
 transmissionRecord = [{
   "source": "server",
