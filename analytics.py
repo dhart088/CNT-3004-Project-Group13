@@ -16,7 +16,7 @@ transmissionRecord = [{
   "transmission time": 0,
   "download rate": 0,
   "upload rate": 0,
-  "response time": 0
+  "response time": 0,
   "ID": 0
 }]
 
@@ -63,3 +63,7 @@ def calculate(location, up_or_down):
   totalFileSize = 0
   global startTime
   startTime = 0
+
+def printRecord():
+  print(transmissionRecord)
+  return
