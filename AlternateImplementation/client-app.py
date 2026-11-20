@@ -190,6 +190,7 @@ def main():
         # Logout command
         elif cmd == "LOGOUT":
             client.send(send_data.encode(FORMAT))
+            an.printRecord() # creates file with all recorded transmissions
             break
 
         else:
