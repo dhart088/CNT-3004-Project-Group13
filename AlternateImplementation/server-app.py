@@ -186,6 +186,7 @@ def handle_client (conn,addr):
 
 
     print(f"{addr} disconnected.")
+    an.printRecord() # creates file with all recorded transmissions
     conn.close()
 
 
