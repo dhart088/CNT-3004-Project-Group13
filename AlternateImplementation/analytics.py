@@ -77,5 +77,6 @@ def calculate(location, up_or_down):
   startTimeVal = 0
 
 def printRecord():
-  print(transmissionRecord)
+  with open("record.txt", "w") as file:
+    file.write(transmissionRecord)
   return
