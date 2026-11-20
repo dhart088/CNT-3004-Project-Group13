@@ -73,8 +73,8 @@ def calculate(location, up_or_down):
   global chunkNum
   chunkNum = 0
   totalFileSize = 0
-  global startTime
-  startTime = 0
+  global startTimeVal
+  startTimeVal = 0
 
 def printRecord():
   print(transmissionRecord)

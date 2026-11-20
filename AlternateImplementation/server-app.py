@@ -94,7 +94,7 @@ def handle_client (conn,addr):
                 an.startTime() # begin timer for recording transaction
                 
                 size_in_bytes = os.path.getsize(cur_dir / filename)
-                conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size header
+                conn.sendall(struct.pack("!Q", size_in_bytes))  # send 8 byte file size
                 an.updateChunk(size_in_bytes) # updates expected file size for recording transaction
                 
                 with open(cur_dir / filename, "rb") as f:
