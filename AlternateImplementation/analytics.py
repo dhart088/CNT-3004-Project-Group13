@@ -78,5 +78,6 @@ def calculate(location, up_or_down):
 
 def printRecord():
   with open("record.txt", "w") as file:
-    file.write(transmissionRecord)
+    for item in transmissionRecord:
+        file.write(f"{item}\n")
   return
