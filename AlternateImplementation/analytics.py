@@ -8,7 +8,7 @@ chunkSize = 0
 totalFileSize = 0
 responseTimeVal = 0
 
-transmissionRecord = [{
+transmissionRecord = [{ # format that the recorded data is stored
   "source": "server",
   "start time": 0,
   "end time": 0,
@@ -21,31 +21,31 @@ transmissionRecord = [{
   "ID": 0
 }]
 
-def startTime():
+def startTime(): # records the numerical value of the time that the transmission started
   global startTimeVal
   startTimeVal = time.time()
   global startDate
   startDate = time.ctime()
   return
 
-def responseTime():
+def responseTime(): # records the numerical value of the time that the other system recieved a response
   global responseTimeVal
   responseTimeVal = time.time()
   return
 
-def getResponseTime():
+def getResponseTime(): # returns the numerical value of the time that the other system recieved a response
     global responseTimeVal
     return responseTimeVal
 
-def getStart():
+def getStart(): # returns the numerical value of the time the transmission started
   global startTimeVal
   return startTimeVal
 
-def getStartDate():
+def getStartDate(): # returns the value of the time that the transmission started
     global startDate
     return startDate
 
-def updateChunk(chunk):
+def updateChunk(chunk): # updates the total file size of the file being transmitted
   global chunkSize
   chunkSize = max(chunk, chunkSize)
   global totalFileSize 
@@ -54,7 +54,7 @@ def updateChunk(chunk):
   chunkNum = chunkNum + 1
   return
 
-def calculate(location, up_or_down):
+def calculate(location, up_or_down): # function that adds a dictionary containing information from each transmission
   elapsedTime = time.time() - getStart()
   global endDate
   endDate = time.ctime()
@@ -76,7 +76,7 @@ def calculate(location, up_or_down):
   global startTimeVal
   startTimeVal = 0
 
-def printRecord():
+def printRecord(): # function that creates record file
   with open("record.txt", "w") as file:
     for item in transmissionRecord:
         file.write(f"{item}\n")
