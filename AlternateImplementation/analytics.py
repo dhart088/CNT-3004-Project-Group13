@@ -33,14 +33,17 @@ def responseTime():
   responseTime = time.time()
   return
 
-def getResponseTime()
-return global responseTime
+def getResponseTime():
+    global responseTime
+    return responseTime
 
 def getStart():
-  return global startTime
+  global startTime
+  return startTime
 
 def getStartDate():
-  return global startDate
+    global startDate
+    return startDate
 
 def updateChunk(chunk):
   global chunkSize
@@ -48,7 +51,7 @@ def updateChunk(chunk):
   global totalFileSize 
   totalFileSize += chunk
   global chunkNum
-  chunkNum++
+  chunkNum = chunkNum + 1
   return
 
 def calculate(location, up_or_down):

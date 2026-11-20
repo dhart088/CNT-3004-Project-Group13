@@ -5,7 +5,6 @@ from pathlib import Path
 import struct
 import analytics as an
 
-
 SIZE = 1024
 FORMAT = "utf-8"
 SERVER_PATH = "server"
@@ -82,7 +81,6 @@ def handle_client (conn,addr):
                         received_size += len(chunk)
                         an.updateChunk(chunk_size) # update chunk size for recording transaction
                         
-                # print("File transfer complete")
                 an.calculate(SERVER_PATH, "up") # calculate and record successful transaction
                 conn.send(f"OK@{filename} uploaded successfully. ".encode(FORMAT))
             else:
@@ -155,7 +153,6 @@ def handle_client (conn,addr):
             if data[1] == "UP":
                 if cur_dir != basePath:
                     cur_dir = cur_dir.parent
-                    # send_data = f"OK@current directory is now {cur_dir.name}."
                 else:
                     send_data = f"ERROR@already at highest directory"
             elif data[1] != "NONE":

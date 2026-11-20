@@ -4,7 +4,7 @@ import struct
 from pathlib import Path
 from getpass import getpass
 import hashlib
-import analyitics as an
+import analytics as an
 
 SIZE = 1024
 FORMAT = "utf-8"
