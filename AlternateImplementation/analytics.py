@@ -1,12 +1,12 @@
 import time
-startTime = 0
+startTimeVal = 0
 transactionID = 0
 startDate = time.ctime()
 endDate = time.ctime()
 chunkNum = 0
 chunkSize = 0
 totalFileSize = 0
-responseTime = 0
+responseTimeVal = 0
 
 transmissionRecord = [{
   "source": "server",
@@ -22,24 +22,24 @@ transmissionRecord = [{
 }]
 
 def startTime():
-  global startTime
-  startTime = time.time()
+  global startTimeVal
+  startTimeVal = time.time()
   global startDate
   startDate = time.ctime()
   return
 
 def responseTime():
-  global responseTime
-  responseTime = time.time()
+  global responseTimeVal
+  responseTimeVal = time.time()
   return
 
 def getResponseTime():
-    global responseTime
-    return responseTime
+    global responseTimeVal
+    return responseTimeVal
 
 def getStart():
-  global startTime
-  return startTime
+  global startTimeVal
+  return startTimeVal
 
 def getStartDate():
     global startDate
